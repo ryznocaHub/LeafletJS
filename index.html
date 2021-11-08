@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet GeoJSON</title>
+    <!-- Internal CSS -->
+    <link rel="stylesheet" href="css.css" crossorigin="" />
+    <!-- Leaflet JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <!-- Leaflet_plugin.locate -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.css" />
+    <!-- Leaflet_plugin.measure -->
+    <script src="./leaflet-measure/src/leaflet-measure.js"></script>
+    <link rel="stylesheet" href="leaflet-measure/src/css/leaflet-measure.css">
+    <!-- Leaflet_plugin.geocoder -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- Leaflet_plugin.search -->
+    <link rel="stylesheet" href="leaflet-search-master/dist/leaflet-search.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="container__sidebar">
+            <div class="container">
+                <h1>Fikri Halim Ch</h1>
+                <br>
+                <p>118140055</p>
+            </div>
+        </aside>
+        
+        <!-- Main -->
+        <main class="container__main">
+            <div id="map"></div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+    <!-- leaflet-ajax -->
+    <script src="./leaflet-ajax/leaflet.ajax.js"></script>
+    <!-- leaflet-search -->
+    <script src="./leaflet-search-master/dist/leaflet-search.min.js"></script>
+    <script src="./pendidikan-balam.js"></script>
+    <script>
+        var mymap = L.map('map',{measureControl: true}).setView([-5.359013097988684, 105.3162449826625], 15);
+        ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: ACCESS_TOKEN
+        }).addTo(mymap);
+
+        // L.Control.geocoder().addTo(mymap);
+        
+        var markersLayer = new L.LayerGroup();	//layer contain searched elements
+	
+        mymap.addLayer(markersLayer);
+        // console.log(balam[0].features[0].geometry.coordinates);
+        
+
+        var controlSearch = new L.Control.Search({
+            position:'topleft',		
+            layer: markersLayer,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            textPlaceholder:'Masukkan Nama Sekolah',
+            zoom: 20,
+        });
+
+        mymap.addControl( controlSearch );
+
+        for(i in balam[0].features ) {
+            var title = balam[0].features[i].properties.NAMOBJ,	//value searched
+                loc = balam[0].features[i].geometry.coordinates,		//position found
+                marker = new L.Marker(new L.latLng(loc), {title: title} );//se property searched
+            marker.bindPopup('<h3><b>'+ title +'</b></h3>\n' + '<h4>' + balam[0].features[i].properties.REMARK + '</h4>');
+            markersLayer.addLayer(marker);
+            // console.log(loc);
+            // console.log(title);
+        }
+        // L.geoJSON(balam).addTo(mymap);
+
+        
+        // function popUp(f,l){
+        //     var out = [];
+        //     var title = "";
+        //     if (f.properties){
+        //         for(key in f.properties){
+        //             if(key == "NAMOBJ"){
+        //                 out.push("Kecamatan : "+f.properties[key]);
+        //             }else if(key == "WADMKK"){
+        //                 out.push("Kabupaten : "+f.properties[key]);
+        //             }else if(key == "WADMPR"){
+        //                 out.push("Provinsi : "+f.properties[key]);
+        //             }
+        //             out.push(key+": "+f.properties[key]);
+        //         }
+                
+                // l.bindPopup(out.join("<br />"));
+            // }
+            // for(key in f.geometry){
+            //         if (key == "coordinates"){
+            //             loc = f.properties[key]
+            //             console.log(loc)
+            //         }
+            //         marker = new L.Marker(new L.latLng(loc), {title: title} );
+            //         markersLayer.addLayer(marker);
+
+            //     }
+        // }
+        // var jsonTest = new L.GeoJSON.AJAX(["pendidikan.geojson"],{onEachFeature:popUp}).addTo(mymap);
+
+        L.control.locate({
+            strings: {
+                title: "Lokasi Saya"
+            },
+        }).addTo(mymap);
+
+        L.Control.Measure().addTo(mymap);
+
+    </script>
+</body>
+</html>
