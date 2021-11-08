@@ -17,3 +17,18 @@
 #map{
     height: 100vh;
 }
+
+.btnMap{
+    color: #85acff;
+    border: 2px solid rgb(56, 3, 202);
+    border-radius: 10px;
+    margin: auto;
+    background-color: white;
+    font-size: 20px;
+    padding: 10px;
+}
+
+.btnMap:focus{
+    background-color: #85acff;
+    color: white;
+}

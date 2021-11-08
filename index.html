@@ -21,16 +21,17 @@
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <!-- Leaflet_plugin.search -->
     <link rel="stylesheet" href="leaflet-search-master/dist/leaflet-search.min.css">
+    <!-- Leaflet_plugin.routing-machine -->
+    <link rel="stylesheet" href="leaflet-routing-machine/dist/leaflet-routing-machine.css">
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
         <aside class="container__sidebar">
-            <div class="container">
-                <h1>Fikri Halim Ch</h1>
-                <br>
-                <p>118140055</p>
-            </div>
+            <h1>Fikri Halim Ch</h1>
+            <p>118140055</p>
+            <p>Ujian Tengah Semester</p>
+            <p>Sistem Informasi Geografis</p>
         </aside>
         
         <!-- Main -->
@@ -43,6 +44,9 @@
     <script src="./leaflet-ajax/leaflet.ajax.js"></script>
     <!-- leaflet-search -->
     <script src="./leaflet-search-master/dist/leaflet-search.min.js"></script>
+    <!-- leaflet-routing-machine -->
+    <script src="./leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="./leaflet-routing-machine/src/Control-Geocoder.js"></script>
     <script src="./pendidikan-balam.js"></script>
     <script>
         var mymap = L.map('map',{measureControl: true}).setView([-5.359013097988684, 105.3162449826625], 15);
@@ -62,9 +66,7 @@
         var markersLayer = new L.LayerGroup();	//layer contain searched elements
 	
         mymap.addLayer(markersLayer);
-        // console.log(balam[0].features[0].geometry.coordinates);
         
-
         var controlSearch = new L.Control.Search({
             position:'topleft',		
             layer: markersLayer,
@@ -76,47 +78,33 @@
 
         mymap.addControl( controlSearch );
 
+        
         for(i in balam[0].features ) {
             var title = balam[0].features[i].properties.NAMOBJ,	//value searched
                 loc = balam[0].features[i].geometry.coordinates,		//position found
                 marker = new L.Marker(new L.latLng(loc), {title: title} );//se property searched
-            marker.bindPopup('<h3><b>'+ title +'</b></h3>\n' + '<h4>' + balam[0].features[i].properties.REMARK + '</h4>');
+            marker.bindPopup('<h3><b>'+ title +'</b></h3>\n' + 
+                '<h4>' + balam[0].features[i].properties.REMARK + 
+                "</h4><button onclick='return kesini("+ balam[0].features[i].geometry.coordinates[0] + ',' +balam[0].features[i].geometry.coordinates[1]+")' class='btnMap'>Rute Kesini</button>");
             markersLayer.addLayer(marker);
-            // console.log(loc);
-            // console.log(title);
         }
-        // L.geoJSON(balam).addTo(mymap);
 
-        
-        // function popUp(f,l){
-        //     var out = [];
-        //     var title = "";
-        //     if (f.properties){
-        //         for(key in f.properties){
-        //             if(key == "NAMOBJ"){
-        //                 out.push("Kecamatan : "+f.properties[key]);
-        //             }else if(key == "WADMKK"){
-        //                 out.push("Kabupaten : "+f.properties[key]);
-        //             }else if(key == "WADMPR"){
-        //                 out.push("Provinsi : "+f.properties[key]);
-        //             }
-        //             out.push(key+": "+f.properties[key]);
-        //         }
-                
-                // l.bindPopup(out.join("<br />"));
-            // }
-            // for(key in f.geometry){
-            //         if (key == "coordinates"){
-            //             loc = f.properties[key]
-            //             console.log(loc)
-            //         }
-            //         marker = new L.Marker(new L.latLng(loc), {title: title} );
-            //         markersLayer.addLayer(marker);
+        var control = L.Routing.control({
+            waypoints: [
+                L.latLng(-5.359013097988684, 105.3162449826625),
+                L.latLng(57.6792, 11.949)
+            ],
+            geocoder: L.Control.Geocoder.nominatim(),
+            routeWhileDragging: true,
+            reverseWaypoints: true,
+            showAlternatives: true,
+        }).addTo(mymap);
 
-            //     }
-        // }
-        // var jsonTest = new L.GeoJSON.AJAX(["pendidikan.geojson"],{onEachFeature:popUp}).addTo(mymap);
-
+        function kesini(lat,lng){
+            console.log(lat,lng)
+            var latlng = L.latLng(lat,lng)
+            control.spliceWaypoints(control.getWaypoints().length - 1, 1, latlng);
+        }
         L.control.locate({
             strings: {
                 title: "Lokasi Saya"
